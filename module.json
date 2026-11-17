@@ -1,0 +1,52 @@
+{
+  "id": "rpg-up-originate-tidy5e",
+  "title": "RPG Up — Originate + Tidy5e",
+  "description": "Integra o botão de evolução de nível do Originate ao cabeçalho da ficha Tidy5e no Foundry VTT v14.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "RPG Up",
+      "url": "https://github.com/henriquebot"
+    }
+  ],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.370"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "6.0.0",
+          "verified": "6.1.0"
+        }
+      }
+    ],
+    "requires": [
+      {
+        "id": "originate",
+        "type": "module",
+        "compatibility": {
+          "minimum": "3.0.4"
+        }
+      },
+      {
+        "id": "tidy5e-sheet",
+        "type": "module",
+        "compatibility": {
+          "minimum": "15.0.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "url": "https://github.com/henriquebot/RPG-Up-Originate-Tidy5e",
+  "manifest": "https://raw.githubusercontent.com/henriquebot/RPG-Up-Originate-Tidy5e/main/module.json",
+  "download": "https://raw.githubusercontent.com/henriquebot/RPG-Up-Originate-Tidy5e/main/rpg-up-originate-tidy5e-v1.0.0.zip",
+  "license": "LICENSE",
+  "readme": "README.md"
+}
