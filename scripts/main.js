@@ -1,12 +1,12 @@
 /**
- * RPG Up — Originate + Tidy5e v1.0.3
+ * RPG Up — Originate + Tidy5e v1.0.4
  * Foundry VTT v14 / dnd5e 6.x
  *
  * Keep Tidy API registration SYNCHRONOUS (exactly as in the working console test).
  * Do not import Originate internals until a user clicks the control.
  */
 const MODULE_ID = "rpg-up-originate-tidy5e";
-const VERSION = "1.0.3";
+const VERSION = "1.0.4";
 const state = {
   loaded: true,
   registered: false,

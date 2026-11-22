@@ -11,6 +11,13 @@ Requisitos: Foundry v14, sistema dnd5e 6.x, Originate 3.0.4+ e Tidy5e Sheet 15.0
 
 Após atualizar, reinicie ou recarregue o mundo e reabra a ficha Tidy5e.
 
+## v1.0.4 — manifest e distribuição
+
+- Identificação explícita `"type": "module"` conforme esquema da v14.
+- ZIP com entradas de diretório explícitas (`scripts/`, `styles/`), contendo `module.json` na raiz.
+- Não há mudanças no comportamento do botão da v1.0.3.
+- Diagnóstico do instalador ainda depende de confirmação no servidor do Foundry.
+
 ## v1.0.3 — remover botão duplicado no Tidy5e
 
 - O Originate insere um botão próprio (em inglês) depois que o personagem recebe seu marcador. O botão em PT-BR é fornecido por este módulo.
@@ -36,7 +43,7 @@ O módulo somente registra um botão de interface. A evolução em si é feita p
 
 ## Se o botão não aparecer
 
-1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.3 está habilitado em **Configurar módulos**.
+1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.4 está habilitado em **Configurar módulos**.
 2. Confirme que **Originate** e **Tidy5e Sheet** estão habilitados.
 3. Verifique que a ficha aberta é do Tidy5e e **Enable Level Up Management** do Originate está ligado.
 4. No console F12, consulte `game.modules.get("rpg-up-originate-tidy5e")?.api?.getStatus()`. `registered` deve ser `true`.
