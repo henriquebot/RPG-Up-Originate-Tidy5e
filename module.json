@@ -2,7 +2,7 @@
   "id": "rpg-up-originate-tidy5e",
   "title": "RPG Up — Originate + Tidy5e",
   "description": "Adiciona o botão Originate Subir Nível ao cabeçalho do Tidy5e no Foundry v14, incluindo personagens importados mediante confirmação.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "authors": [
     {
       "name": "RPG Up",
@@ -46,7 +46,7 @@
   ],
   "url": "https://github.com/henriquebot/RPG-Up-Originate-Tidy5e",
   "manifest": "https://raw.githubusercontent.com/henriquebot/RPG-Up-Originate-Tidy5e/main/module.json",
-  "download": "https://raw.githubusercontent.com/henriquebot/RPG-Up-Originate-Tidy5e/main/rpg-up-originate-tidy5e-v1.0.1.zip",
+  "download": "https://raw.githubusercontent.com/henriquebot/RPG-Up-Originate-Tidy5e/main/rpg-up-originate-tidy5e-v1.0.2.zip",
   "license": "LICENSE",
   "readme": "README.md"
 }

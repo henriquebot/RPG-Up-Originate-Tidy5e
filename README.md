@@ -11,6 +11,11 @@ Requisitos: Foundry v14, sistema dnd5e 6.x, Originate 3.0.4+ e Tidy5e Sheet 15.0
 
 Após atualizar, reinicie ou recarregue o mundo e reabra a ficha Tidy5e.
 
+## v1.0.2 — correção da confirmação no Foundry v14
+
+- Corrigida a chamada de `DialogV2.confirm` para preservar o contexto da classe (resolvido o erro `Cannot read properties of undefined (reading 'wait')`).
+- Mantidos os recursos da v1.0.1: botão Tidy5e, confirmação para personagens importados e diagnóstico.
+
 ## v1.0.1 — correção de integração
 
 - O botão é registrado **sincronamente**, como no código de console que funcionou, sem importar módulos extras na inicialização.
@@ -25,7 +30,7 @@ O módulo somente registra um botão de interface. A evolução em si é feita p
 
 ## Se o botão não aparecer
 
-1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.1 está habilitado em **Configurar módulos**.
+1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.2 está habilitado em **Configurar módulos**.
 2. Confirme que **Originate** e **Tidy5e Sheet** estão habilitados.
 3. Verifique que a ficha aberta é do Tidy5e e **Enable Level Up Management** do Originate está ligado.
 4. No console F12, consulte `game.modules.get("rpg-up-originate-tidy5e")?.api?.getStatus()`. `registered` deve ser `true`.

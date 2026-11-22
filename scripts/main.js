@@ -1,12 +1,12 @@
 /**
- * RPG Up — Originate + Tidy5e v1.0.1
+ * RPG Up — Originate + Tidy5e v1.0.2
  * Foundry VTT v14 / dnd5e 6.x
  *
  * Keep Tidy API registration SYNCHRONOUS (exactly as in the working console test).
  * Do not import Originate internals until a user clicks the control.
  */
 const MODULE_ID = "rpg-up-originate-tidy5e";
-const VERSION = "1.0.1";
+const VERSION = "1.0.2";
 const state = {
   loaded: true,
   registered: false,
@@ -48,9 +48,9 @@ async function ensureOriginateMarked(actor) {
     defaultYes: false
   };
 
-  const confirmV2 = foundry.applications?.api?.DialogV2?.confirm;
-  const accepted = typeof confirmV2 === "function"
-    ? await confirmV2({
+  const DialogV2 = foundry.applications?.api?.DialogV2;
+  const accepted = typeof DialogV2?.confirm === "function"
+    ? await DialogV2.confirm({
         window: { title: options.title },
         content: options.content,
         yes: { label: "Habilitar Originate" },
