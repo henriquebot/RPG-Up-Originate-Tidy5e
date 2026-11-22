@@ -1,41 +1,37 @@
 # RPG Up — Originate + Tidy5e
 
-Integra o botão **Originate — Subir nível** ao cabeçalho da ficha de personagem **Tidy5e**, sem editar os módulos originais.
-
-**Testado manualmente no contexto do usuário:** Foundry VTT 14.370, dnd5e 6.1.0, Originate 3.0.4, Tidy5e 15.0.0. A versão empacotada replica a integração testada no console, com verificação dos marcadores original do Originate. A instalação empacotada precisa ser validada no mundo de teste.
+Integra o botão **Originate — Subir nível** ao cabeçalho do **Tidy5e**, sem editar os módulos originais.
 
 ## Instalação
 
-No Foundry (tela de configuração), abra **Módulos adicionais → Instalar módulo** e cole o URL do manifest:
-
+Manifest (Foundry v14):
 `https://raw.githubusercontent.com/henriquebot/RPG-Up-Originate-Tidy5e/main/module.json`
 
-Em seguida, ative no mundo:
-- **Originate** (3.0.4 ou superior)
-- **Tidy 5e Sheet** (15.0.0 ou superior)
-- **RPG Up — Originate + Tidy5e**
+Requisitos: Foundry v14, sistema dnd5e 6.x, Originate 3.0.4+ e Tidy5e Sheet 15.0.0+ ativos.
 
-Sistema: **dnd5e 6.x**. Foundry: **v14**.
+Após atualizar, reinicie ou recarregue o mundo e reabra a ficha Tidy5e.
 
-## Funcionamento
+## v1.0.1 — correção de integração
 
-O botão fica no cabeçalho da ficha Tidy5e quando:
-1. A configuração de **Level Up** do Originate está ligada;
-2. O ator é do tipo **character** e o usuário tem permissão de proprietário;
-3. O ator é reconhecido pela função `hasOriginateActorMarkers` do próprio Originate.
+- O botão é registrado **sincronamente**, como no código de console que funcionou, sem importar módulos extras na inicialização.
+- O controle agora aparece em qualquer ficha Tidy5e de personagem (`character`) quando o Originate Level Up está habilitado e o usuário tem permissão de proprietário.
+- Se a ficha for importada e não tiver marcadores do Originate, o primeiro clique solicita confirmação para adicionar o marcador `flags.originate.createdBy`. **Não modifica nada sem confirmação.**
+- Se houver uma janela do assistente já aberta para o mesmo personagem, traz a janela para frente.
+- Indicadores de diagnóstico no console e API de status: `game.modules.get("rpg-up-originate-tidy5e").api.getStatus()`.
 
-**Personagens importados:** o Originate só reconhece personagens criados por ele ou com marcadores válidos. Para liberar um personagem importado, use `await actor.setFlag("originate", "createdBy", "originate")` **apenas em um ator que você quer gerenciar pelo Originate**; isso altera o marcador de origem e pode afetar outras rotinas do Originate.
+O módulo somente registra um botão de interface. A evolução em si é feita pelo Originate e suas regras. A integração com o DAS não é modificada.
 
-O botão abre `LevelUpApp` do Originate e traz para frente uma janela já aberta, sem duplicá-la. Este módulo não muda nível, XP, itens, progressões nem configurações de personagem.
+**Atenção:** marcar um ator importado como criado pelo Originate altera a forma como o próprio Originate o reconhece e pode afetar rotinas de progressão. Recomenda-se testar em cópia antes de evoluir personagens em uso.
 
-## Limitações
+## Se o botão não aparecer
 
-- Usa caminhos internos do Originate 3.0.4 para `resolution-core.js` e `levelup-app.js`. Se o Originate alterar esses arquivos, a integração precisará de atualização.
-- O módulo não altera automaticamente os marcadores dos personagens.
-- O DAS não é um requisito; a compatibilidade depende da ficha Tidy5e e do comportamento do Originate.
+1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.1 está habilitado em **Configurar módulos**.
+2. Confirme que **Originate** e **Tidy5e Sheet** estão habilitados.
+3. Verifique que a ficha aberta é do Tidy5e e **Enable Level Up Management** do Originate está ligado.
+4. No console F12, consulte `game.modules.get("rpg-up-originate-tidy5e")?.api?.getStatus()`. `registered` deve ser `true`.
 
-## Desenvolvimento
+## Notas
 
-Arquivos: `module.json` e `scripts/main.js`. O ZIP para instalação precisa conter `module.json` na raiz.
-
-Repositório: https://github.com/henriquebot/RPG-Up-Originate-Tidy5e
+- Usa o arquivo interno `/modules/originate/scripts/levelup-app.js` do Originate 3.0.4.
+- O botão de nível não usa XP. As configurações de avanço são controladas pelo dnd5e/Originate.
+- Licença MIT.

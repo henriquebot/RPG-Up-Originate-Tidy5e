@@ -1,31 +1,101 @@
 /**
- * RPG Up — Originate + Tidy5e
+ * RPG Up — Originate + Tidy5e v1.0.1
  * Foundry VTT v14 / dnd5e 6.x
  *
- * Registers a Tidy5e character sheet header control using the official Tidy API.
- * The Originate wizard and actor-marker rules remain owned by Originate.
+ * Keep Tidy API registration SYNCHRONOUS (exactly as in the working console test).
+ * Do not import Originate internals until a user clicks the control.
  */
 const MODULE_ID = "rpg-up-originate-tidy5e";
-let registrationStarted = false;
-let registered = false;
+const VERSION = "1.0.1";
+const state = {
+  loaded: true,
+  registered: false,
+  attempts: 0,
+  lastAttempt: null,
+  lastError: null
+};
 
-async function registerOriginateControl(tidyApi) {
-  if (registrationStarted || registered) return;
+function getStatus() {
+  const tidy = game.modules.get("tidy5e-sheet");
+  const originate = game.modules.get("originate");
+  return {
+    version: VERSION,
+    ...state,
+    moduleActive: game.modules.get(MODULE_ID)?.active ?? false,
+    tidyActive: tidy?.active ?? false,
+    tidyApiAvailable: typeof tidy?.api?.registerCharacterHeaderControls === "function",
+    originateActive: originate?.active ?? false,
+    levelUpEnabled: originate?.active
+      ? game.settings.get("originate", "useLevelUp")
+      : null
+  };
+}
+
+function isOriginateMarked(actor) {
+  return actor?.flags?.originate?.createdBy === "originate" ||
+    Boolean(actor?.flags?.["hero-genesis"]?.created);
+}
+
+async function ensureOriginateMarked(actor) {
+  if (isOriginateMarked(actor)) return true;
+
+  // An unmarked (usually imported) actor must opt in before Originate manages it.
+  const options = {
+    title: "Habilitar evolução com Originate?",
+    content: "<p>Este personagem não foi criado no Originate. Ativar o gerenciamento de níveis do Originate para ele?</p><p>Isso adiciona um marcador ao personagem, sem alterar seu nível, classe ou habilidades neste momento.</p>",
+    yes: () => true,
+    no: () => false,
+    defaultYes: false
+  };
+
+  const confirmV2 = foundry.applications?.api?.DialogV2?.confirm;
+  const accepted = typeof confirmV2 === "function"
+    ? await confirmV2({
+        window: { title: options.title },
+        content: options.content,
+        yes: { label: "Habilitar Originate" },
+        no: { label: "Cancelar" },
+        modal: true,
+        rejectClose: false
+      })
+    : await Dialog.confirm(options);
+
+  if (!accepted) return false;
+  await actor.setFlag("originate", "createdBy", "originate");
+  return true;
+}
+
+async function openLevelUp(actor) {
+  const { LevelUpApp } = await import("/modules/originate/scripts/levelup-app.js");
+
+  const openWindows = [
+    ...Object.values(ui.windows ?? {}),
+    ...Array.from(foundry.applications?.instances?.values?.() ?? [])
+  ];
+
+  const existing = openWindows.find(app =>
+    app.constructor?.name === "LevelUpApp" && app.actor?.id === actor.id
+  );
+
+  if (existing) existing.bringToFront();
+  else new LevelUpApp(actor).render(true);
+}
+
+function registerControl(api, source) {
+  if (state.registered) return;
+  state.attempts += 1;
+  state.lastAttempt = source;
+
   if (!game.modules.get("originate")?.active ||
       !game.modules.get("tidy5e-sheet")?.active ||
-      typeof tidyApi?.registerCharacterHeaderControls !== "function") return;
+      typeof api?.registerCharacterHeaderControls !== "function") {
+    console.warn(`${MODULE_ID} | API ou dependências indisponíveis em ${source}.`);
+    return;
+  }
 
-  registrationStarted = true;
   try {
-    // Reuse Originate's exact actor eligibility logic (including item markers).
-    const { hasOriginateActorMarkers } = await import(
-      "/modules/originate/scripts/shared/resolution-core.js"
-    );
-    if (typeof hasOriginateActorMarkers !== "function") {
-      throw new Error("Originate marker API unavailable");
-    }
-
-    tidyApi.registerCharacterHeaderControls({
+    // Same synchronous registration that worked in the in-game F12 test.
+    api.registerCharacterHeaderControls({
       controls: [{
         action: "rpg-up-originate-level-up",
         icon: "fas fa-hat-wizard",
@@ -34,11 +104,9 @@ async function registerOriginateControl(tidyApi) {
         ownership: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER,
 
         visible() {
-          const actor = this.document;
-          if (actor?.type !== "character") return false;
           try {
-            return game.settings.get("originate", "useLevelUp") &&
-              hasOriginateActorMarkers(actor);
+            return this.document?.type === "character" &&
+              game.settings.get("originate", "useLevelUp") === true;
           } catch {
             return false;
           }
@@ -46,46 +114,36 @@ async function registerOriginateControl(tidyApi) {
 
         async onClickAction() {
           const actor = this.document;
-          if (!actor || !hasOriginateActorMarkers(actor)) return;
+          if (actor?.type !== "character") return;
 
           try {
-            const { LevelUpApp } = await import(
-              "/modules/originate/scripts/levelup-app.js"
-            );
-            const openWindows = [
-              ...Object.values(ui.windows ?? {}),
-              ...Array.from(foundry.applications?.instances?.values?.() ?? [])
-            ];
-            const existing = openWindows.find(app =>
-              app.constructor?.name === "LevelUpApp" &&
-              app.actor?.id === actor.id
-            );
-
-            if (existing) existing.bringToFront();
-            else new LevelUpApp(actor).render(true);
+            if (!(await ensureOriginateMarked(actor))) return;
+            await openLevelUp(actor);
           } catch (error) {
-            console.error(`${MODULE_ID} | Falha ao abrir o Originate:`, error);
-            ui.notifications.error("Não foi possível abrir o Level Up do Originate.");
+            console.error(`${MODULE_ID} | Erro ao abrir o level up:`, error);
+            ui.notifications.error("Falha ao abrir o assistente de nível do Originate. Veja o console F12.");
           }
         }
       }]
     });
 
-    registered = true;
-    console.info(`${MODULE_ID} | Botão do Originate registrado no Tidy5e.`);
+    state.registered = true;
+    state.lastError = null;
+    console.info(`${MODULE_ID} v${VERSION} | Botão registrado no Tidy5e via ${source}.`);
   } catch (error) {
-    console.error(`${MODULE_ID} | Integração indisponível:`, error);
-  } finally {
-    registrationStarted = false;
+    state.lastError = String(error);
+    console.error(`${MODULE_ID} | Falha no registro via ${source}:`, error);
   }
 }
 
-// Recommended entry point from the Tidy5e developer API.
-Hooks.once("tidy5e-sheet.ready", (api) => {
-  void registerOriginateControl(api);
+console.info(`${MODULE_ID} v${VERSION} | Carregado.`);
+
+Hooks.once("tidy5e-sheet.ready", api => {
+  registerControl(api, "tidy5e-sheet.ready");
 });
 
-// Fallback if the Tidy ready hook ran before this module was loaded.
 Hooks.once("ready", () => {
-  void registerOriginateControl(game.modules.get("tidy5e-sheet")?.api);
+  const mod = game.modules.get(MODULE_ID);
+  if (mod) mod.api = { getStatus };
+  registerControl(game.modules.get("tidy5e-sheet")?.api, "ready");
 });
