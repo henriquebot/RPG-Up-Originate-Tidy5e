@@ -1,0 +1,11 @@
+/*
+ * Originate adds its own icon button to a Tidy5e actor sheet once the
+ * actor has Originate markers. That duplicates our Tidy-API header control.
+ *
+ * Scope narrowly: only Tidy5e actor windows, only the original Originate
+ * button class, only AFTER our header control was successfully registered.
+ * Do not affect normal dnd5e sheets or Originate's level-up dialog.
+ */
+html.rpgup-originate-tidy5e-registered .tidy5e-sheet .originate-levelup-btn {
+  display: none !important;
+}

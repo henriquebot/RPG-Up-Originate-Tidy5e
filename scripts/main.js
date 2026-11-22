@@ -1,12 +1,12 @@
 /**
- * RPG Up — Originate + Tidy5e v1.0.2
+ * RPG Up — Originate + Tidy5e v1.0.3
  * Foundry VTT v14 / dnd5e 6.x
  *
  * Keep Tidy API registration SYNCHRONOUS (exactly as in the working console test).
  * Do not import Originate internals until a user clicks the control.
  */
 const MODULE_ID = "rpg-up-originate-tidy5e";
-const VERSION = "1.0.2";
+const VERSION = "1.0.3";
 const state = {
   loaded: true,
   registered: false,
@@ -129,6 +129,9 @@ function registerControl(api, source) {
 
     state.registered = true;
     state.lastError = null;
+    // Only hide Originate's native English button after the Tidy bridge
+    // has successfully registered its own PT-BR header control.
+    document.documentElement.classList.add("rpgup-originate-tidy5e-registered");
     console.info(`${MODULE_ID} v${VERSION} | Botão registrado no Tidy5e via ${source}.`);
   } catch (error) {
     state.lastError = String(error);
