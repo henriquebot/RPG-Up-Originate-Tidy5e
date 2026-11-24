@@ -11,6 +11,14 @@ Requisitos: Foundry v14, sistema dnd5e 6.x, Originate 3.0.4+ e Tidy5e Sheet 15.0
 
 Após atualizar, reinicie ou recarregue o mundo e reabra a ficha Tidy5e.
 
+## v1.0.5 — multiclasse habilitada por padrão
+
+- Ao entrar no mundo, um mestre habilita automaticamente `originate.useMulticlass = true` quando necessário.
+- A configuração é do **mundo** e permanece salva após reiniciar. Cada mundo com o módulo ativado recebe o mesmo padrão quando um GM entrar.
+- O botão Tidy5e verifica essa configuração antes de abrir o assistente; se estiver desligada, o mestre a reativa automaticamente.
+- Jogadores sem permissão de mestre não tentam alterar configurações globais; quando a opção estiver desligada, recebem orientação para chamar o GM.
+- Não modifica fichas, classes, níveis, itens ou o DAS. Mantido todo o comportamento anterior do módulo.
+
 ## v1.0.4 — manifest e distribuição
 
 - Identificação explícita `"type": "module"` conforme esquema da v14.
@@ -43,7 +51,7 @@ O módulo somente registra um botão de interface. A evolução em si é feita p
 
 ## Se o botão não aparecer
 
-1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.4 está habilitado em **Configurar módulos**.
+1. Confirme que o módulo **RPG Up — Originate + Tidy5e** v1.0.5 está habilitado em **Configurar módulos**.
 2. Confirme que **Originate** e **Tidy5e Sheet** estão habilitados.
 3. Verifique que a ficha aberta é do Tidy5e e **Enable Level Up Management** do Originate está ligado.
 4. No console F12, consulte `game.modules.get("rpg-up-originate-tidy5e")?.api?.getStatus()`. `registered` deve ser `true`.

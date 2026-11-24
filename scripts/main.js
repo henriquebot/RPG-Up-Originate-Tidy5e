@@ -1,12 +1,12 @@
 /**
- * RPG Up — Originate + Tidy5e v1.0.4
+ * RPG Up — Originate + Tidy5e v1.0.5
  * Foundry VTT v14 / dnd5e 6.x
  *
  * Keep Tidy API registration SYNCHRONOUS (exactly as in the working console test).
  * Do not import Originate internals until a user clicks the control.
  */
 const MODULE_ID = "rpg-up-originate-tidy5e";
-const VERSION = "1.0.4";
+const VERSION = "1.0.5";
 const state = {
   loaded: true,
   registered: false,
@@ -27,8 +27,41 @@ function getStatus() {
     originateActive: originate?.active ?? false,
     levelUpEnabled: originate?.active
       ? game.settings.get("originate", "useLevelUp")
+      : null,
+    multiclassEnabled: originate?.active
+      ? game.settings.get("originate", "useMulticlass")
       : null
   };
+}
+
+/**
+ * Originate stores useMulticlass as a world setting. Enable it automatically
+ * when a GM enters the world, and verify it again before opening Level Up.
+ * This preserves the setting across restarts; players cannot write world settings.
+ */
+async function ensureMulticlassEnabled({ notifyOnFailure = false } = {}) {
+  if (!game.modules.get("originate")?.active) return false;
+
+  try {
+    if (game.settings.get("originate", "useMulticlass") === true) return true;
+
+    if (!game.user?.isGM) {
+      if (notifyOnFailure) {
+        ui.notifications.warn("Peça ao mestre para entrar no mundo e ativar a multiclasse do Originate.");
+      }
+      return false;
+    }
+
+    await game.settings.set("originate", "useMulticlass", true);
+    console.info(`${MODULE_ID} | Multiclasse do Originate habilitada para este mundo.`);
+    return true;
+  } catch (error) {
+    console.error(`${MODULE_ID} | Falha ao habilitar multiclasse:`, error);
+    if (notifyOnFailure) {
+      ui.notifications.error("Não foi possível habilitar a multiclasse do Originate. Veja o console F12.");
+    }
+    return false;
+  }
 }
 
 function isOriginateMarked(actor) {
@@ -117,6 +150,7 @@ function registerControl(api, source) {
           if (actor?.type !== "character") return;
 
           try {
+            if (!(await ensureMulticlassEnabled({ notifyOnFailure: true }))) return;
             if (!(await ensureOriginateMarked(actor))) return;
             await openLevelUp(actor);
           } catch (error) {
@@ -149,4 +183,5 @@ Hooks.once("ready", () => {
   const mod = game.modules.get(MODULE_ID);
   if (mod) mod.api = { getStatus };
   registerControl(game.modules.get("tidy5e-sheet")?.api, "ready");
+  void ensureMulticlassEnabled();
 });
